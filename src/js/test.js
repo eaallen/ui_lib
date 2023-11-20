@@ -1,15 +1,52 @@
 const state = { countA: 0, countB: 0, countC: 0 }
+
 const publisher = ui.publisher()
 
-function customButton(){
+function customForm(handleSubmit = () => { }) {
+    let email = ""
+    let password = ""
+    let age = ""
+    return form(
+        {
+            onsubmit: e => {
+                e.preventDefault()
+                handleSubmit({ email, password, age })
+            },
+        },
+        label("Email",
+            input({
+                type: "text", onchange: e => {
+                    email = e.target.value
+                }
+            }),
+        ),
+        label("Password",
+            input({
+                type: "password", onchange: e => {
+                    password = e.target.value
+                }
+            }),
+        ),
+        label("Age",
+            input({
+                type: "number", onchange: e => {
+                    age = e.target.value
+                }
+            }),
+        ),
+        input({ type: "submit" }),
+    )
+}
+
+function customButton() {
     let count = 0
     const content = () => `Count is ${count}`
     return ui.clickable(
-        btn=>{
+        btn => {
             count++
             btn.replaceChildren(content())
         },
-        button({style: "color: green;"}, content())
+        button({ style: "color: green;" }, content())
     )
 }
 
@@ -55,14 +92,14 @@ document.getElementsByTagName('body')[0].append(
             }, "Click Me!"),
         publisher.makeSubscriber(
             button("Count: 0"),
-            btn =>  btn.replaceChildren(`Count: ${state.countC}`)
+            btn => btn.replaceChildren(`Count: ${state.countC}`)
         ),
         publisher.makeSubscriber(
             button("Count: 0"),
             btn => btn.replaceChildren(`Count: ${state.countC}`)
         ),
     ),
-    article({className: "example"},
+    article({ className: "example" },
         h2("Custom Components"),
         p("It is really easy to define your own custom components (with thier own state)! You just have to follow a few rules:"),
         ul(
@@ -71,6 +108,8 @@ document.getElementsByTagName('body')[0].append(
         ),
         p("Here is a custom component:"),
         customButton(),
+        p("And here is a form"),
+        customForm((data) => console.table(data)),
     ),
-    img("../../sand.png", "I hate sand"),
+    img({ src: "../../sand.png" }, "I hate sand"),
 )
