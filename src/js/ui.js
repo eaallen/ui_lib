@@ -1,3 +1,5 @@
+const ui = (() => {
+
 /**
  * @template {HTMLElement} T
  * @param {T} element 
@@ -6,14 +8,16 @@
  * @returns {T}
  */
 function base(element, props, ...children) {
-    if (props instanceof HTMLElement || typeof props === "string") {
-        element.append(props)
-    } else {
-        for (const [key, value] of Object.entries(props)) {
-            element[key] = value
+    if (props !== undefined) {
+        if (props instanceof HTMLElement || typeof props === "string") {
+            element.append(props)
+        } else {
+            for (const [key, value] of Object.entries(props)) {
+                element[key] = value
+            }
         }
+        element.append(...children)
     }
-    element.append(...children)
     return element
 }
 
@@ -182,7 +186,7 @@ function li(props, ...children) {
  * Creates a anchor (link)
  * @param {Object<string, any>} props the class string for the element
  * @param {...string|HTMLElement} children items that get appended to this element as children
- */
+*/
 function a(props, href, ...children) {
     const item = base(document.createElement("a"), props, ...children)
     item.href = href
@@ -193,25 +197,34 @@ function a(props, href, ...children) {
  * @template {HTMLElement} T
  * @param {Object<string, any>} props 
  * @param  {...string|T} children 
- */
+*/
 function article(props, ...children) {
     return base(document.createElement("article"), props, ...children)
 }
 
 
 /**
- * This callback is displayed as a global member.
+ * This callback is called anytime the publisher `publish` method is called.
  * @template T
  * @callback subscriberCallback
  * @param {T} element
  * @param {*} eventData
+ * @param {replaceElementInMemoryAndInDomWith<HTMLElement>} eventData
  * @returns {void}
- */
+*/
+
+/**
+ * This callback is called when we want to replace the subscribers original 
+ * element with a new element
+ * @template T
+ * @callback replaceElementInMemoryAndInDomWith
+ * @param {T} element
+ * @returns {void}
+*/
 
 
 
-const ui = (() => {
-    function ready(fn) {
+function ready(fn) {
         if (document.readyState !== 'loading') {
             fn();
         } else {
@@ -245,7 +258,10 @@ const ui = (() => {
              */
             makeSubscriber(element, fnElementEventData) {
                 document.addEventListener(eventName, (e) => {
-                    fnElementEventData(element, e.detail)
+                    fnElementEventData(element, e.detail, (newElement)=> {
+                        element.replaceWith(newElement)
+                        element = newElement
+                    })
                 })
                 return element
             }
@@ -262,5 +278,27 @@ const ui = (() => {
         ready,
         clickable,
         publisher,
+        p,
+        div,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        tag,
+        base,
+        select,
+        button,
+        img,
+        span,
+        a,
+        form,
+        label,
+        input,
+        br,
+        ol, 
+        ul,
+        li,
+        article,
     }
 })()
