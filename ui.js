@@ -9,11 +9,17 @@ const ui = (() => {
      */
     function base(element, props, ...children) {
         if (props !== undefined) {
-            if (props instanceof HTMLElement || typeof props === "string") {
+            if (props instanceof HTMLElement || props instanceof SVGElement || typeof props === "string") {
                 element.append(props)
             } else {
-                for (const [key, value] of Object.entries(props)) {
-                    element[key] = value
+                if (element instanceof SVGElement) {
+                    for (const [key, value] of Object.entries(props)) {
+                        element.setAttributeNS("http://www.w3.org/2000/svg", key, value)
+                    }
+                } else {
+                    for (const [key, value] of Object.entries(props)) {
+                        element[key] = value
+                    }
                 }
             }
             element.append(...children)
@@ -30,6 +36,17 @@ const ui = (() => {
      */
     function tag(elementName, props, ...children) {
         return base(document.createElement(elementName), props, ...children)
+    }
+
+    /**
+     * 
+     * @param {keyof SVGElementTagNameMap} elementName 
+     * @param {Object<string, any>} props 
+     * @param  {...string|HTMLElement} children 
+     * @returns 
+     */
+    function svgTag(elementName, props, ...children) {
+        return base(document.createElementNS("http://www.w3.org/2000/svg", elementName), props, ...children)
     }
 
     /**
@@ -187,9 +204,8 @@ const ui = (() => {
      * @param {Object<string, any>} props the class string for the element
      * @param {...string|HTMLElement} children items that get appended to this element as children
     */
-    function a(props, href, ...children) {
+    function a(props, ...children) {
         const item = base(document.createElement("a"), props, ...children)
-        item.href = href
         return item
     }
 
@@ -201,6 +217,56 @@ const ui = (() => {
     function article(props, ...children) {
         return base(document.createElement("article"), props, ...children)
     }
+
+    /**
+     * @template {HTMLElement} T
+     * @param {Object<string, any>} props 
+     * @param  {...string|T} children 
+    */
+    function table(props, ...children) {
+        return base(document.createElement("table"), props, ...children)
+    }
+    /**
+     * @template {HTMLElement} T
+     * @param {Object<string, any>} props 
+     * @param  {...string|T} children 
+    */
+    function tbody(props, ...children) {
+        return base(document.createElement("tbody"), props, ...children)
+    }
+    /**
+     * @template {HTMLElement} T
+     * @param {Object<string, any>} props 
+     * @param  {...string|T} children 
+    */
+    function td(props, ...children) {
+        return base(document.createElement("td"), props, ...children)
+    }
+    /**
+     * @template {HTMLElement} T
+     * @param {Object<string, any>} props 
+     * @param  {...string|T} children 
+    */
+    function tr(props, ...children) {
+        return base(document.createElement("tr"), props, ...children)
+    }
+    /**
+     * @template {HTMLElement} T
+     * @param {Object<string, any>} props 
+     * @param  {...string|T} children 
+    */
+    function th(props, ...children) {
+        return base(document.createElement("th"), props, ...children)
+    }
+    /**
+     * @template {HTMLElement} T
+     * @param {Object<string, any>} props 
+     * @param  {...string|T} children 
+    */
+    function thead(props, ...children) {
+        return base(document.createElement("thead"), props, ...children)
+    }
+
 
 
     /**
@@ -225,7 +291,6 @@ const ui = (() => {
 
 
     function ready(fn) {
-        console.log("ready it");
         if (document.readyState !== 'loading') {
             fn();
         } else {
@@ -279,7 +344,7 @@ const ui = (() => {
      * gets the first item the matches the query and then gives its children as declared 
      * in the buildFn
      * @param {string} query 
-     * @param {function} buildFn 
+     * @param {(el: Element)=>void} buildFn 
      */
     function root(query, buildFn) {
         const node = document.querySelector(query)
@@ -312,7 +377,14 @@ const ui = (() => {
         ul,
         li,
         article,
+        table,
+        tbody,
+        td,
+        th,
+        thead,
+        tr,
         root,
-        uuidv4
+        uuidv4,
+        svgTag,
     }
 })()
